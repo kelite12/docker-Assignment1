@@ -1,9 +1,15 @@
 version: '3.8'
 
 networks:
-   network:
+   mongo-network:
        external: true
-       name: 'network'
+       name: 'mongo-network'
+   redis-network:
+       external: true
+       name: 'redis-work'
+   mongo-api:
+       external: true
+       name: 'mongo-api'
 
 services:
   movies-api:
@@ -19,7 +25,8 @@ services:
     ports:
       - '9000:9000'
     networks:
-      - network
+      - mongo-api
+      - redis-network
 
   mongo:
     image: mongo:8.0-rc
@@ -30,7 +37,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: secret
     networks:
-      - network
+      - mongo-network
+      - mongo-api
     volumes:
       - ./db:/data/db 
 
@@ -38,7 +46,7 @@ services:
     image: redis:alpine
     container_name: redis
     networks:
-      - network
+      - redis-network
 
   mongo-express:
     image: mongo-express:1.0-20-alpine3.19
@@ -53,4 +61,4 @@ services:
     depends_on:
       - mongo
     networks: 
-      - network
+      - mongo-network
